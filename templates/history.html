@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card p-4">
+                <h2 class="text-primary mb-4">Operation History</h2>
+                
+                {% if history %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Operation</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in history %}
+                                <tr>
+                                    <td>{{ entry.timestamp }}</td>
+                                    <td>{{ entry.operation }}</td>
+                                    <td>
+                                        {% if entry.operation == 'encrypt' %}
+                                            <div class="mb-2">
+                                                <strong>Original Message:</strong><br>
+                                                <code>{{ entry.input }}</code>
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>Public Key Used:</strong><br>
+                                                <code>{{ entry.public_key }}</code>
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>Encrypted Message:</strong><br>
+                                                <code>{{ entry.output }}</code>
+                                            </div>
+                                        {% elif entry.operation == 'decrypt' %}
+                                            <div class="mb-2">
+                                                <strong>Ciphertext:</strong><br>
+                                                <code>{{ entry.input }}</code>
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>Private Key Used:</strong><br>
+                                                <code>{{ entry.private_key }}</code>
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>Decrypted Message:</strong><br>
+                                                <code>{{ entry.output }}</code>
+                                            </div>
+                                        {% elif entry.operation == 'generate_keys' %}
+                                            <div class="mb-2">
+                                                <strong>Key Size:</strong> {{ entry.key_size }} bits
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>Public Key:</strong><br>
+                                                <code>{{ entry.public_key }}</code>
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>Private Key:</strong><br>
+                                                <code>{{ entry.private_key }}</code>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No history available yet. Your encryption and decryption operations will appear here.
+                    </div>
+                {% endif %}
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('home') }}" class="btn btn-primary">Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
