@@ -108,7 +108,7 @@ def login_user(email, password):
         return check_password_hash(users[email], password)
 
 @app.route('/')
-def index():
+def main():
     return render_template('main.html')
 
 @app.route('/home')
@@ -157,7 +157,7 @@ def signup():
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
-    return redirect(url_for('index'))
+    return redirect(url_for('main'))
 
 @app.route('/generate_keys', methods=['POST'])
 def generate_keys():
