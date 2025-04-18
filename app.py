@@ -109,6 +109,7 @@ def login_user(email, password):
 
 @app.route('/')
 def main():
+    session.clear()
     return render_template('main.html')
 
 @app.route('/home')

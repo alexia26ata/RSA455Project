@@ -2,13 +2,8 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="text-primary">Operation History</h1>
-        <a href="{{ url_for('main') }}" class="btn btn-primary">
-            <i class="fas fa-arrow-left me-2"></i>Back to Encryption
-        </a>
-    </div>
-
+    <h1 class="text-primary">Operation History</h1>
+    
     {% if operations %}
     <div class="table-responsive">
         <table class="table table-striped">
@@ -18,46 +13,41 @@
                     <th>Operation</th>
                     <th>Input</th>
                     <th>Output</th>
+                    <th>Keys</th>
                 </tr>
             </thead>
             <tbody>
-                {% for operation in operations %}
+                {% for op in operations %}
                 <tr>
-                    <td>{{ operation.timestamp.strftime('%Y-%m-%d %I:%M %p') }}</td>
+                    <td>{{ op.timestamp.strftime('%Y-%m-%d %I:%M %p') }}</td>
                     <td>
-                        {% if operation.operation_type == 'encrypt' %}
-                            <span class="badge bg-primary">Encryption</span>
-                        {% elif operation.operation_type == 'decrypt' %}
-                            <span class="badge bg-success">Decryption</span>
+                        {% if op.operation_type == 'encrypt' %}
+                        <span class="badge bg-primary">Encryption</span>
+                        {% elif op.operation_type == 'decrypt' %}
+                        <span class="badge bg-success">Decryption</span>
                         {% else %}
-                            <span class="badge bg-info">Keys Generated</span>
+                        <span class="badge bg-info">Keys Generated</span>
                         {% endif %}
                     </td>
                     <td>
-                        {% if operation.operation_type == 'encrypt' %}
-                            <div class="data-box">{{ operation.input_data }}</div>
-                        {% elif operation.operation_type == 'decrypt' %}
-                            <div class="data-box">{{ operation.input_data }}</div>
-                        {% else %}
-                            <div class="data-box">Key Size: {{ operation.key_size }} bits</div>
-                        {% endif %}
+                        <div class="data-box">{{ op.input_data }}</div>
                     </td>
                     <td>
-                        {% if operation.operation_type == 'encrypt' %}
-                            <div class="data-box">{{ operation.output_data }}</div>
-                        {% elif operation.operation_type == 'decrypt' %}
-                            <div class="data-box">{{ operation.output_data }}</div>
-                        {% else %}
-                            <div class="data-box">
-                                <div class="mb-3">
-                                    <strong>Public Key:</strong>
-                                    <div class="key-box">{{ operation.public_key }}</div>
-                                </div>
-                                <div>
-                                    <strong>Private Key:</strong>
-                                    <div class="key-box">{{ operation.private_key }}</div>
-                                </div>
-                            </div>
+                        <div class="data-box">{{ op.output_data }}</div>
+                    </td>
+                    <td>
+                        {% if op.keys_used %}
+                        <div class="key-box">
+                            {% set keys = op.keys_used|from_json %}
+                            {% if keys.public_key %}
+                            <strong>Public Key:</strong><br>
+                            {{ keys.public_key }}<br><br>
+                            {% endif %}
+                            {% if keys.private_key %}
+                            <strong>Private Key:</strong><br>
+                            {{ keys.private_key }}
+                            {% endif %}
+                        </div>
                         {% endif %}
                     </td>
                 </tr>
@@ -66,39 +56,25 @@
         </table>
     </div>
     {% else %}
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle me-2"></i>No operations recorded yet. Start by generating keys or encrypting/decrypting messages!
-    </div>
+    <p>No operations recorded yet. Start generating keys or encrypting/decrypting messages!</p>
     {% endif %}
 </div>
 
 <style>
-.data-box {
-    background-color: var(--card-color);
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 12px;
-    margin: 4px 0;
-    word-break: break-all;
-    font-family: monospace;
-    max-height: 200px;
+.data-box, .key-box {
+    max-height: 100px;
     overflow-y: auto;
-}
-
-.key-box {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
     padding: 8px;
-    margin-top: 4px;
-    word-break: break-all;
+    background-color: #f8f9fa;
+    border-radius: 4px;
     font-family: monospace;
+    font-size: 0.9em;
+    white-space: pre-wrap;
+    word-break: break-all;
 }
-
 .badge {
     font-size: 0.9em;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 8px 12px;
 }
 </style>
 {% endblock %} 
