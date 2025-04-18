@@ -256,7 +256,7 @@ def history():
     except Exception as e:
         print(f"Error retrieving history: {str(e)}")
         flash('Error retrieving history', 'error')
-        return redirect(url_for('home'))
+        return redirect(url_for('main'))
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
