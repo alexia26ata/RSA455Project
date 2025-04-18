@@ -24,7 +24,7 @@
                         <label for="privateKey" class="form-label">Private Key</label>
                         <textarea class="form-control" id="privateKey" rows="4" readonly></textarea>
                     </div>
-                    <button class="btn w-100" id="generateBtn" style="background-color: #2196F3; border-color: #2196F3; color: white;">Generate Keys</button>
+                    <button class="btn w-100" id="generateBtn" onclick="generateKeys()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Generate Keys</button>
                 </div>
             </div>
         </div>
@@ -46,8 +46,8 @@
                         <label for="encryptedMessage" class="form-label">Encrypted Message</label>
                         <textarea class="form-control" id="encryptedMessage" rows="4" readonly></textarea>
                     </div>
-                    <button class="btn btn-primary w-100 mb-2" id="pastePublicKeyBtn">Paste Public Key</button>
-                    <button class="btn w-100" id="encryptBtn" style="background-color: #2196F3; border-color: #2196F3; color: white;">Encrypt</button>
+                    <button class="btn btn-primary w-100 mb-2" id="pastePublicKeyBtn" onclick="pastePublicKey()">Paste Public Key</button>
+                    <button class="btn w-100" id="encryptBtn" onclick="encryptMessage()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Encrypt</button>
                 </div>
             </div>
         </div>
@@ -69,8 +69,8 @@
                         <label for="decryptedMessage" class="form-label">Decrypted Message</label>
                         <textarea class="form-control" id="decryptedMessage" rows="4" readonly></textarea>
                     </div>
-                    <button class="btn btn-primary w-100 mb-2" id="pastePrivateKeyBtn">Paste Private Key</button>
-                    <button class="btn w-100" id="decryptBtn" style="background-color: #2196F3; border-color: #2196F3; color: white;">Decrypt</button>
+                    <button class="btn btn-primary w-100 mb-2" id="pastePrivateKeyBtn" onclick="pastePrivateKey()">Paste Private Key</button>
+                    <button class="btn w-100" id="decryptBtn" onclick="decryptMessage()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Decrypt</button>
                 </div>
             </div>
         </div>
