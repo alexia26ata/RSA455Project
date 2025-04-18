@@ -51,33 +51,235 @@
 
     <!-- How It Works Section -->
     <div class="row mt-5">
-        <div class="col-12 text-center">
-            <h2 class="mb-4">How It Works</h2>
+        <div class="col-12 text-center mb-4">
+            <h2>Understanding RSA Encryption</h2>
+            <p class="lead">A step-by-step guide to the mathematics behind RSA</p>
         </div>
-        <div class="col-md-4">
+
+        <!-- Step 1: Prime Numbers -->
+        <div class="col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title">1. Generate Keys</h5>
-                    <p class="card-text">Generate your public and private key pair. Share your public key with others who want to send you encrypted messages.</p>
+                    <h4 class="card-title">
+                        <span class="badge bg-primary me-2">1</span>
+                        Prime Numbers Selection
+                    </h4>
+                    <p class="card-text">Two large prime numbers (p and q) are chosen randomly:</p>
+                    <div class="example-box bg-light p-3 rounded">
+                        <p class="mb-2">Example:</p>
+                        <p>p = 61</p>
+                        <p>q = 53</p>
+                        <button class="btn btn-sm btn-outline-primary" onclick="generatePrimes()">Try Different Primes</button>
+                        <div id="newPrimes" class="mt-2"></div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+
+        <!-- Step 2: Calculate n and φ(n) -->
+        <div class="col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title">2. Encrypt Messages</h5>
-                    <p class="card-text">Use someone's public key to encrypt messages that only they can read with their private key.</p>
+                    <h4 class="card-title">
+                        <span class="badge bg-primary me-2">2</span>
+                        Calculate n and φ(n)
+                    </h4>
+                    <p class="card-text">Compute the product n and Euler's totient function φ(n):</p>
+                    <div class="example-box bg-light p-3 rounded">
+                        <p>n = p × q = 61 × 53 = 3,233</p>
+                        <p>φ(n) = (p-1) × (q-1)</p>
+                        <p>φ(n) = 60 × 52 = 3,120</p>
+                        <button class="btn btn-sm btn-outline-primary" onclick="calculateValues()">Calculate with New Primes</button>
+                        <div id="calculations" class="mt-2"></div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+
+        <!-- Step 3: Choose Public Exponent -->
+        <div class="col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title">3. Decrypt Messages</h5>
-                    <p class="card-text">Use your private key to decrypt messages that others have encrypted with your public key.</p>
+                    <h4 class="card-title">
+                        <span class="badge bg-primary me-2">3</span>
+                        Public Exponent (e)
+                    </h4>
+                    <p class="card-text">Choose e such that 1 < e < φ(n) and e is coprime to φ(n):</p>
+                    <div class="example-box bg-light p-3 rounded">
+                        <p>Commonly used value: e = 65,537</p>
+                        <p>Why? It's a Fermat prime (2¹⁶ + 1)</p>
+                        <p>Properties:</p>
+                        <ul>
+                            <li>Large enough for security</li>
+                            <li>Efficient for calculations</li>
+                            <li>Always coprime to φ(n)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Private Exponent -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <span class="badge bg-primary me-2">4</span>
+                        Private Exponent (d)
+                    </h4>
+                    <p class="card-text">Calculate d as the modular multiplicative inverse of e modulo φ(n):</p>
+                    <div class="example-box bg-light p-3 rounded">
+                        <p>d × e ≡ 1 (mod φ(n))</p>
+                        <p>For our example:</p>
+                        <p>d = 2,753</p>
+                        <p>Verify: (2,753 × 17) mod 3,120 = 1</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: Encryption Process -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <span class="badge bg-primary me-2">5</span>
+                        Encryption Process
+                    </h4>
+                    <p class="card-text">For a message m, the ciphertext c is:</p>
+                    <div class="example-box bg-light p-3 rounded">
+                        <p>c = m<sup>e</sup> mod n</p>
+                        <div class="try-it-box">
+                            <p class="mb-2">Try it:</p>
+                            <input type="number" id="messageToEncrypt" class="form-control form-control-sm mb-2" placeholder="Enter a number (0-100)">
+                            <button class="btn btn-sm btn-outline-primary" onclick="demonstrateEncryption()">Encrypt</button>
+                            <div id="encryptionResult" class="mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 6: Decryption Process -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <span class="badge bg-primary me-2">6</span>
+                        Decryption Process
+                    </h4>
+                    <p class="card-text">For a ciphertext c, the original message m is:</p>
+                    <div class="example-box bg-light p-3 rounded">
+                        <p>m = c<sup>d</sup> mod n</p>
+                        <div class="try-it-box">
+                            <p class="mb-2">Try it:</p>
+                            <input type="number" id="cipherToDecrypt" class="form-control form-control-sm mb-2" placeholder="Enter the ciphertext">
+                            <button class="btn btn-sm btn-outline-primary" onclick="demonstrateDecryption()">Decrypt</button>
+                            <div id="decryptionResult" class="mt-2"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Example values
+let currentP = 61;
+let currentQ = 53;
+let currentN = 3233;
+let currentPhi = 3120;
+let currentE = 17;
+let currentD = 2753;
+
+function generatePrimes() {
+    // Simple example primes (in real RSA, much larger primes are used)
+    const smallPrimes = [
+        [61, 53], [67, 71], [73, 79], [83, 89], [97, 101]
+    ];
+    const randomPair = smallPrimes[Math.floor(Math.random() * smallPrimes.length)];
+    currentP = randomPair[0];
+    currentQ = randomPair[1];
+    
+    document.getElementById('newPrimes').innerHTML = `
+        <div class="alert alert-success mt-2">
+            New primes generated:<br>
+            p = ${currentP}<br>
+            q = ${currentQ}
+        </div>
+    `;
+}
+
+function calculateValues() {
+    currentN = currentP * currentQ;
+    currentPhi = (currentP - 1) * (currentQ - 1);
+    
+    document.getElementById('calculations').innerHTML = `
+        <div class="alert alert-success mt-2">
+            With p = ${currentP} and q = ${currentQ}:<br>
+            n = ${currentN}<br>
+            φ(n) = ${currentPhi}
+        </div>
+    `;
+}
+
+function demonstrateEncryption() {
+    const message = parseInt(document.getElementById('messageToEncrypt').value);
+    if (isNaN(message) || message < 0 || message > 100) {
+        document.getElementById('encryptionResult').innerHTML = `
+            <div class="alert alert-danger">Please enter a number between 0 and 100</div>
+        `;
+        return;
+    }
+    
+    // Simple modular exponentiation (for demonstration only)
+    let cipher = 1;
+    for (let i = 0; i < currentE; i++) {
+        cipher = (cipher * message) % currentN;
+    }
+    
+    document.getElementById('encryptionResult').innerHTML = `
+        <div class="alert alert-success">
+            Message: ${message}<br>
+            Encrypted: ${cipher}
+        </div>
+    `;
+    document.getElementById('cipherToDecrypt').value = cipher;
+}
+
+function demonstrateDecryption() {
+    const cipher = parseInt(document.getElementById('cipherToDecrypt').value);
+    if (isNaN(cipher)) {
+        document.getElementById('decryptionResult').innerHTML = `
+            <div class="alert alert-danger">Please enter a valid number</div>
+        `;
+        return;
+    }
+    
+    // Simple modular exponentiation (for demonstration only)
+    let message = 1;
+    for (let i = 0; i < currentD; i++) {
+        message = (message * cipher) % currentN;
+    }
+    
+    document.getElementById('decryptionResult').innerHTML = `
+        <div class="alert alert-success">
+            Ciphertext: ${cipher}<br>
+            Decrypted: ${message}
+        </div>
+    `;
+}
+</script>
+
+<style>
+.example-box {
+    border-left: 4px solid #007bff;
+}
+.try-it-box {
+    border-top: 1px solid #dee2e6;
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+</style>
 {% endblock %} 
