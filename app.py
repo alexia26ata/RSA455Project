@@ -1,31 +1,16 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
-from flask_mail import Mail, Message
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import json
 import os
 import datetime
-import random
-import uuid
 from sympy import randprime
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_sqlalchemy import SQLAlchemy
-from models import User, History
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
 
-# Email configuration
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your-email@gmail.com'  # Replace with your email
-app.config['MAIL_PASSWORD'] = 'your-app-password'     # Replace with your app password
-mail = Mail(app)
-
-# Ensure the history and shared directories exist
+# Ensure the history directory exists
 if not os.path.exists('history'):
     os.makedirs('history')
-if not os.path.exists('shared'):
-    os.makedirs('shared')
 
 # Initialize users.json if it doesn't exist
 if not os.path.exists('users.json'):
@@ -221,44 +206,6 @@ def get_history():
         return redirect(url_for('login'))
     history = load_history_for_user(session['email'])
     return render_template('history.html', history=history)
-
-# ====== Shared Messages Storage ======
-def get_shared_messages_file():
-    if not os.path.exists("shared"):
-        os.makedirs("shared")
-    return os.path.join("shared", "messages.json")
-
-def save_shared_message(content, msg_type, sender_email, public_key=None):
-    share_id = str(uuid.uuid4())
-    shared_file = get_shared_messages_file()
-    
-    if not os.path.exists(shared_file):
-        with open(shared_file, "w") as f:
-            json.dump({}, f)
-    
-    with open(shared_file, "r+") as f:
-        shared = json.load(f)
-        shared[share_id] = {
-            'content': content,
-            'type': msg_type,
-            'sender': sender_email,
-            'public_key': public_key,
-            'timestamp': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        }
-        f.seek(0)
-        json.dump(shared, f, indent=4)
-        f.truncate()
-    
-    return share_id
-
-def get_shared_message(share_id):
-    shared_file = get_shared_messages_file()
-    if not os.path.exists(shared_file):
-        return None
-    
-    with open(shared_file, "r") as f:
-        shared = json.load(f)
-        return shared.get(share_id)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
