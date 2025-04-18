@@ -160,17 +160,21 @@ def generate_keys():
     bits = int(request.form.get('bits', 1024))
     public_key, private_key = generate_key_pair(bits)
     
-    # Log the operation in the database
-    operation = Operation(
-        user_id=session['user_id'],
-        operation_type='generate_keys',
-        input_data='',
-        output_data=json.dumps({'public_key': str(public_key), 'private_key': str(private_key)}),
-        key_size=bits,
-        keys_used=json.dumps({'public_key': str(public_key), 'private_key': str(private_key)})
-    )
-    db.session.add(operation)
-    db.session.commit()
+    try:
+        # Log the operation in the database
+        operation = Operation(
+            user_id=session['user_id'],
+            operation_type='generate_keys',
+            input_data='',
+            output_data=json.dumps({'public_key': str(public_key), 'private_key': str(private_key)}),
+            key_size=bits,
+            keys_used=json.dumps({'public_key': str(public_key), 'private_key': str(private_key)})
+        )
+        db.session.add(operation)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error saving operation: {str(e)}")
     
     return jsonify({
         'public_key': str(public_key),
@@ -186,17 +190,21 @@ def encrypt_message():
     public_key = eval(request.form.get('public_key'))
     cipher = encrypt(message, public_key)
     
-    # Log the operation in the database
-    operation = Operation(
-        user_id=session['user_id'],
-        operation_type='encrypt',
-        input_data=message,
-        output_data=str(cipher),
-        key_size=len(str(public_key[1])),
-        keys_used=json.dumps({'public_key': str(public_key)})
-    )
-    db.session.add(operation)
-    db.session.commit()
+    try:
+        # Log the operation in the database
+        operation = Operation(
+            user_id=session['user_id'],
+            operation_type='encrypt',
+            input_data=message,
+            output_data=str(cipher),
+            key_size=len(str(public_key[1])),
+            keys_used=json.dumps({'public_key': str(public_key)})
+        )
+        db.session.add(operation)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error saving operation: {str(e)}")
     
     return jsonify({'cipher': str(cipher)})
 
@@ -209,17 +217,21 @@ def decrypt_message():
     private_key = eval(request.form.get('private_key'))
     message = decrypt(cipher, private_key)
     
-    # Log the operation in the database
-    operation = Operation(
-        user_id=session['user_id'],
-        operation_type='decrypt',
-        input_data=str(cipher),
-        output_data=message,
-        key_size=len(str(private_key[1])),
-        keys_used=json.dumps({'private_key': str(private_key)})
-    )
-    db.session.add(operation)
-    db.session.commit()
+    try:
+        # Log the operation in the database
+        operation = Operation(
+            user_id=session['user_id'],
+            operation_type='decrypt',
+            input_data=str(cipher),
+            output_data=message,
+            key_size=len(str(private_key[1])),
+            keys_used=json.dumps({'private_key': str(private_key)})
+        )
+        db.session.add(operation)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error saving operation: {str(e)}")
     
     return jsonify({'message': message})
 
@@ -228,8 +240,13 @@ def history():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    operations = Operation.query.filter_by(user_id=session['user_id']).order_by(Operation.timestamp.desc()).all()
-    return render_template('history.html', operations=operations)
+    try:
+        operations = Operation.query.filter_by(user_id=session['user_id']).order_by(Operation.timestamp.desc()).all()
+        return render_template('history.html', operations=operations)
+    except Exception as e:
+        print(f"Error retrieving history: {str(e)}")
+        flash('Error retrieving history', 'error')
+        return redirect(url_for('home'))
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
