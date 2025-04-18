@@ -13,7 +13,6 @@
                         <select class="form-select" id="keySize">
                             <option value="1024">1024 bits</option>
                             <option value="2048">2048 bits</option>
-                            <option value="3072">3072 bits</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -24,7 +23,7 @@
                         <label for="privateKey" class="form-label">Private Key</label>
                         <textarea class="form-control" id="privateKey" rows="4" readonly></textarea>
                     </div>
-                    <button class="btn w-100" id="generateBtn" onclick="generateKeys()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Generate Keys</button>
+                    <button class="btn w-100" onclick="generateKeys()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Generate Keys</button>
                 </div>
             </div>
         </div>
@@ -46,8 +45,8 @@
                         <label for="encryptedMessage" class="form-label">Encrypted Message</label>
                         <textarea class="form-control" id="encryptedMessage" rows="4" readonly></textarea>
                     </div>
-                    <button class="btn btn-primary w-100 mb-2" id="pastePublicKeyBtn" onclick="pastePublicKey()">Paste Public Key</button>
-                    <button class="btn w-100" id="encryptBtn" onclick="encryptMessage()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Encrypt</button>
+                    <button class="btn btn-primary w-100 mb-2" onclick="pastePublicKey()">Paste Public Key</button>
+                    <button class="btn w-100" onclick="encryptMessage()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Encrypt</button>
                 </div>
             </div>
         </div>
@@ -69,13 +68,80 @@
                         <label for="decryptedMessage" class="form-label">Decrypted Message</label>
                         <textarea class="form-control" id="decryptedMessage" rows="4" readonly></textarea>
                     </div>
-                    <button class="btn btn-primary w-100 mb-2" id="pastePrivateKeyBtn" onclick="pastePrivateKey()">Paste Private Key</button>
-                    <button class="btn w-100" id="decryptBtn" onclick="decryptMessage()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Decrypt</button>
+                    <button class="btn btn-primary w-100 mb-2" onclick="pastePrivateKey()">Paste Private Key</button>
+                    <button class="btn w-100" onclick="decryptMessage()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Decrypt</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% block scripts %}
+<script>
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    element.select();
+    document.execCommand('copy');
+    alert('Copied to clipboard!');
+}
+
+function pastePublicKey() {
+    document.getElementById('encryptPublicKey').value = document.getElementById('publicKey').value;
+}
+
+function pastePrivateKey() {
+    document.getElementById('decryptPrivateKey').value = document.getElementById('privateKey').value;
+}
+
+function generateKeys() {
+    const bits = document.getElementById('keySize').value;
+    fetch('/generate_keys', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `bits=${bits}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('publicKey').value = data.public_key;
+        document.getElementById('privateKey').value = data.private_key;
+    });
+}
+
+function encryptMessage() {
+    const message = document.getElementById('message').value;
+    const publicKey = document.getElementById('encryptPublicKey').value;
+    
+    fetch('/encrypt', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `message=${encodeURIComponent(message)}&public_key=${encodeURIComponent(publicKey)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('encryptedMessage').value = data.cipher;
+    });
+}
+
+function decryptMessage() {
+    const cipher = document.getElementById('ciphertext').value;
+    const privateKey = document.getElementById('decryptPrivateKey').value;
+    
+    fetch('/decrypt', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `cipher=${encodeURIComponent(cipher)}&private_key=${encodeURIComponent(privateKey)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('decryptedMessage').value = data.message;
+    });
+}
+</script>
+{% endblock %}
 {% endblock %} 
