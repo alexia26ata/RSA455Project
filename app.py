@@ -15,6 +15,11 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Add json filter
+@app.template_filter('from_json')
+def from_json(value):
+    return json.loads(value)
+
 # Initialize the database
 db.init_app(app)
 
