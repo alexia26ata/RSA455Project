@@ -1,101 +1,80 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-10">
-            <!-- Introduction -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h1 class="text-primary mb-4">Welcome to RSA Encryption</h1>
-                    <p class="lead">
-                        A secure way to encrypt and decrypt messages using public-key cryptography.
-                    </p>
-                    {% if not session.get('email') %}
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                        <a href="{{ url_for('login') }}" class="btn btn-primary me-md-2">Login</a>
-                        <a href="{{ url_for('signup') }}" class="btn btn-outline-primary">Sign Up</a>
-                    </div>
-                    {% else %}
-                    <a href="{{ url_for('login') }}" class="btn btn-primary">Go to Application</a>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- How RSA Works -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h2 class="text-primary mb-3">How RSA Encryption Works</h2>
-                    
-                    <h5 class="mt-4">1. Key Generation</h5>
-                    <ul>
-                        <li>Two large prime numbers (p and q) are chosen randomly</li>
-                        <li>Their product n = p × q is calculated</li>
-                        <li>The totient φ(n) = (p-1) × (q-1) is computed</li>
-                        <li>A public exponent e is chosen (usually 65537)</li>
-                        <li>A private exponent d is calculated as the modular multiplicative inverse of e modulo φ(n)</li>
-                    </ul>
-
-                    <h5 class="mt-4">2. Key Distribution</h5>
-                    <ul>
-                        <li>Public Key (e, n) - Share with anyone who wants to send you encrypted messages</li>
-                        <li>Private Key (d, n) - Keep this secret! Used to decrypt messages</li>
-                    </ul>
-
-                    <h5 class="mt-4">3. Encryption Process</h5>
-                    <ul>
-                        <li>Convert the message to numbers using ASCII values</li>
-                        <li>For each number m, calculate c = m<sup>e</sup> mod n</li>
-                        <li>The result is the encrypted message (ciphertext)</li>
-                    </ul>
-
-                    <h5 class="mt-4">4. Decryption Process</h5>
-                    <ul>
-                        <li>For each number c in the ciphertext</li>
-                        <li>Calculate m = c<sup>d</sup> mod n</li>
-                        <li>Convert the numbers back to characters</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Features -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h2 class="text-primary mb-3">Application Features</h2>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5>Basic Features</h5>
-                            <ul>
-                                <li>Generate RSA key pairs (1024/2048 bits)</li>
-                                <li>Encrypt messages using public key</li>
-                                <li>Decrypt messages using private key</li>
-                                <li>Copy/paste functionality for keys and messages</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h5>Advanced Features</h5>
-                            <ul>
-                                <li>Share encrypted/decrypted messages via links</li>
-                                <li>Download messages and ciphertexts</li>
-                                <li>View operation history</li>
-                                <li>Secure user authentication</li>
-                            </ul>
-                        </div>
+        <div class="col-md-8 text-center">
+            <h1 class="display-4 mb-4">RSA Encryption System</h1>
+            <p class="lead mb-5">A secure way to encrypt and decrypt messages using RSA algorithm</p>
+            
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="d-grid gap-3">
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">Login</a>
+                        <a href="{{ url_for('signup') }}" class="btn btn-outline-primary btn-lg">Sign Up</a>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Security Tips -->
-            <div class="card mb-4">
+    <!-- Features Section -->
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-key fa-3x text-primary mb-3"></i>
+                    <h3>Key Generation</h3>
+                    <p>Generate secure RSA key pairs with different key sizes for maximum security.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-lock fa-3x text-primary mb-3"></i>
+                    <h3>Encryption</h3>
+                    <p>Encrypt your messages using RSA public key cryptography.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-unlock fa-3x text-primary mb-3"></i>
+                    <h3>Decryption</h3>
+                    <p>Decrypt messages securely using your private key.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <h2 class="mb-4">How It Works</h2>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
                 <div class="card-body">
-                    <h2 class="text-primary mb-3">Security Best Practices</h2>
-                    <ul>
-                        <li>Never share your private key with anyone</li>
-                        <li>Use at least 2048-bit keys for better security</li>
-                        <li>Store your keys securely</li>
-                        <li>Always verify the sender's identity when receiving public keys</li>
-                        <li>Don't reuse the same key pair for different purposes</li>
-                    </ul>
+                    <h5 class="card-title">1. Generate Keys</h5>
+                    <p class="card-text">Generate your public and private key pair. Share your public key with others who want to send you encrypted messages.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">2. Encrypt Messages</h5>
+                    <p class="card-text">Use someone's public key to encrypt messages that only they can read with their private key.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">3. Decrypt Messages</h5>
+                    <p class="card-text">Use your private key to decrypt messages that others have encrypted with your public key.</p>
                 </div>
             </div>
         </div>

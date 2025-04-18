@@ -26,9 +26,11 @@
             </div>
             
             <div class="d-grid gap-2">
-                <button class="btn btn-primary" onclick="copyToClipboard('publicKey')">Copy Public Key</button>
-                <button class="btn btn-primary" onclick="copyToClipboard('privateKey')">Copy Private Key</button>
                 <button class="btn btn-accent" onclick="generateKeys()">Generate Keys</button>
+                <div id="keyButtons" style="display: none;">
+                    <button class="btn btn-primary" onclick="copyToClipboard('publicKey')">Copy Public Key</button>
+                    <button class="btn btn-primary" onclick="copyToClipboard('privateKey')">Copy Private Key</button>
+                </div>
             </div>
         </div>
     </div>
@@ -56,23 +58,14 @@
             <div class="d-grid gap-2">
                 <button class="btn btn-primary" onclick="pastePublicKey()">Paste Public Key</button>
                 <button class="btn btn-accent" onclick="encryptMessage()">Encrypt</button>
-                <button class="btn btn-primary" onclick="copyToClipboard('encryptedMessage')">Copy Cipher</button>
-                <div class="row g-2 mt-2">
-                    <div class="col-12">
-                        <button class="btn btn-primary w-100" onclick="shareEncrypted()">Get Share Link</button>
-                    </div>
+                <div id="encryptButtons" style="display: none;">
+                    <button class="btn btn-primary" onclick="copyToClipboard('encryptedMessage')">Copy Cipher</button>
+                    <button class="btn btn-secondary" onclick="downloadEncrypted()">Download Cipher</button>
                 </div>
-                <div id="encryptShareUrl" class="d-none mt-2">
-                    <div class="input-group">
-                        <input type="text" class="form-control" readonly>
-                        <button class="btn btn-outline-primary" onclick="copyShareUrl(this)">Copy Link</button>
-                    </div>
-                </div>
-                <button class="btn btn-secondary" onclick="downloadEncrypted()">Download Cipher</button>
             </div>
         </div>
     </div>
-    
+
     <!-- Decrypt Card -->
     <div class="col-md-4">
         <div class="card p-4">
@@ -96,19 +89,10 @@
             <div class="d-grid gap-2">
                 <button class="btn btn-primary" onclick="pastePrivateKey()">Paste Private Key</button>
                 <button class="btn btn-accent" onclick="decryptMessage()">Decrypt</button>
-                <button class="btn btn-primary" onclick="copyToClipboard('decryptedMessage')">Copy Message</button>
-                <div class="row g-2 mt-2">
-                    <div class="col-12">
-                        <button class="btn btn-primary w-100" onclick="shareDecrypted()">Get Share Link</button>
-                    </div>
+                <div id="decryptButtons" style="display: none;">
+                    <button class="btn btn-primary" onclick="copyToClipboard('decryptedMessage')">Copy Message</button>
+                    <button class="btn btn-secondary" onclick="downloadDecrypted()">Download Message</button>
                 </div>
-                <div id="decryptShareUrl" class="d-none mt-2">
-                    <div class="input-group">
-                        <input type="text" class="form-control" readonly>
-                        <button class="btn btn-outline-primary" onclick="copyShareUrl(this)">Copy Link</button>
-                    </div>
-                </div>
-                <button class="btn btn-secondary" onclick="downloadDecrypted()">Download Message</button>
             </div>
         </div>
     </div>
@@ -145,6 +129,7 @@ function generateKeys() {
     .then(data => {
         document.getElementById('publicKey').value = data.public_key;
         document.getElementById('privateKey').value = data.private_key;
+        document.getElementById('keyButtons').style.display = 'block';
     });
 }
 
@@ -162,6 +147,7 @@ function encryptMessage() {
     .then(response => response.json())
     .then(data => {
         document.getElementById('encryptedMessage').value = data.cipher;
+        document.getElementById('encryptButtons').style.display = 'block';
     });
 }
 
@@ -179,59 +165,8 @@ function decryptMessage() {
     .then(response => response.json())
     .then(data => {
         document.getElementById('decryptedMessage').value = data.message;
+        document.getElementById('decryptButtons').style.display = 'block';
     });
-}
-
-function shareEncrypted() {
-    const cipher = document.getElementById('encryptedMessage').value;
-    const publicKey = document.getElementById('encryptPublicKey').value;
-    
-    fetch('/share', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `content=${encodeURIComponent(cipher)}&type=encrypted&key=${encodeURIComponent(publicKey)}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const urlDiv = document.getElementById('encryptShareUrl');
-            urlDiv.classList.remove('d-none');
-            urlDiv.querySelector('input').value = data.share_url;
-        } else {
-            alert('Failed to generate share link: ' + data.error);
-        }
-    });
-}
-
-function shareDecrypted() {
-    const message = document.getElementById('decryptedMessage').value;
-    
-    fetch('/share', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `content=${encodeURIComponent(message)}&type=decrypted`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const urlDiv = document.getElementById('decryptShareUrl');
-            urlDiv.classList.remove('d-none');
-            urlDiv.querySelector('input').value = data.share_url;
-        } else {
-            alert('Failed to generate share link: ' + data.error);
-        }
-    });
-}
-
-function copyShareUrl(button) {
-    const input = button.parentElement.querySelector('input');
-    input.select();
-    document.execCommand('copy');
-    alert('Share link copied to clipboard!');
 }
 
 function downloadEncrypted() {

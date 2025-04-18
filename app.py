@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 from flask_mail import Mail, Message
 import json
 import os
@@ -7,6 +7,8 @@ import random
 import uuid
 from sympy import randprime
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_sqlalchemy import SQLAlchemy
+from models import User, History
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
@@ -219,14 +221,6 @@ def get_history():
         return redirect(url_for('login'))
     history = load_history_for_user(session['email'])
     return render_template('history.html', history=history)
-
-@app.route('/shared/<share_id>')
-def view_shared(share_id):
-    shared_message = get_shared_message(share_id)
-    if not shared_message:
-        return render_template('error.html', message="Shared message not found")
-    
-    return render_template('shared.html', message=shared_message)
 
 # ====== Shared Messages Storage ======
 def get_shared_messages_file():
