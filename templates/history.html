@@ -1,106 +1,104 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Operation History</h2>
+        <h1 class="text-primary">Operation History</h1>
         <a href="{{ url_for('home') }}" class="btn btn-primary">
             <i class="fas fa-arrow-left me-2"></i>Back to Encryption
         </a>
     </div>
-    
+
     {% if operations %}
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Operation</th>
-                        <th>Input</th>
-                        <th>Output</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for operation in operations %}
-                        <tr>
-                            <td>{{ operation.timestamp.strftime('%Y-%m-%d %I:%M %p') }}</td>
-                            <td>
-                                {% if operation.operation_type == 'encrypt' %}
-                                    <div class="operation-badge encrypt">
-                                        <i class="fas fa-lock me-1"></i>Encrypted
-                                    </div>
-                                {% elif operation.operation_type == 'decrypt' %}
-                                    <div class="operation-badge decrypt">
-                                        <i class="fas fa-unlock me-1"></i>Decrypted
-                                    </div>
-                                {% else %}
-                                    <div class="operation-badge keys">
-                                        <i class="fas fa-key me-1"></i>Keys Generated
-                                    </div>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if operation.input_data %}
-                                    <div class="data-box">
-                                        {{ operation.input_data[:50] }}{% if operation.input_data|length > 50 %}...{% endif %}
-                                    </div>
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if operation.output_data %}
-                                    <div class="data-box">
-                                        {{ operation.output_data[:50] }}{% if operation.output_data|length > 50 %}...{% endif %}
-                                    </div>
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Time (Beirut)</th>
+                    <th>Operation</th>
+                    <th>Input</th>
+                    <th>Output</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for operation in operations %}
+                <tr>
+                    <td>{{ operation.timestamp.strftime('%Y-%m-%d %I:%M %p') }}</td>
+                    <td>
+                        {% if operation.operation_type == 'encrypt' %}
+                            <span class="badge bg-primary">Encryption</span>
+                        {% elif operation.operation_type == 'decrypt' %}
+                            <span class="badge bg-success">Decryption</span>
+                        {% else %}
+                            <span class="badge bg-info">Keys Generated</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if operation.operation_type == 'encrypt' %}
+                            <div class="data-box">{{ operation.input_data }}</div>
+                        {% elif operation.operation_type == 'decrypt' %}
+                            <div class="data-box">{{ operation.input_data }}</div>
+                        {% else %}
+                            <div class="data-box">Key Size: {{ operation.key_size }} bits</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if operation.operation_type == 'encrypt' %}
+                            <div class="data-box">{{ operation.output_data }}</div>
+                        {% elif operation.operation_type == 'decrypt' %}
+                            <div class="data-box">{{ operation.output_data }}</div>
+                        {% else %}
+                            <div class="data-box">
+                                <div class="mb-3">
+                                    <strong>Public Key:</strong>
+                                    <div class="key-box">{{ operation.public_key }}</div>
+                                </div>
+                                <div>
+                                    <strong>Private Key:</strong>
+                                    <div class="key-box">{{ operation.private_key }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% else %}
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle me-2"></i>No operations recorded yet. Start by generating keys or encrypting/decrypting messages.
-        </div>
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>No operations recorded yet. Start by generating keys or encrypting/decrypting messages!
+    </div>
     {% endif %}
 </div>
 
 <style>
-.operation-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.operation-badge.encrypt {
-    background-color: #e3f2fd;
-    color: #1976d2;
-}
-
-.operation-badge.decrypt {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-}
-
-.operation-badge.keys {
-    background-color: #fff3e0;
-    color: #f57c00;
-}
-
 .data-box {
-    background-color: #f8f9fa;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-family: monospace;
-    font-size: 0.9rem;
+    background-color: var(--card-color);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 4px 0;
     word-break: break-all;
+    font-family: monospace;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.key-box {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 4px;
+    word-break: break-all;
+    font-family: monospace;
+}
+
+.badge {
+    font-size: 0.9em;
+    padding: 6px 12px;
+    border-radius: 4px;
 }
 </style>
 {% endblock %} 

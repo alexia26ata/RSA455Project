@@ -68,21 +68,41 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
         }
+
+        .nav-link {
+            color: var(--text-color) !important;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
-            <a class="navbar-brand text-primary" href="/">
+            <a class="navbar-brand text-primary" href="{{ url_for('main') }}">
                 <i class="fas fa-lock me-2"></i>
                 Secure Cipher Scribe
             </a>
-            {% if session.get('user_id') %}
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/history">History</a>
-                <a class="nav-link" href="/logout">Logout</a>
+                {% if session.get('user_id') %}
+                    <a class="nav-link" href="{{ url_for('history') }}">
+                        <i class="fas fa-history me-1"></i>History
+                    </a>
+                    <a class="nav-link" href="{{ url_for('logout') }}">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </a>
+                {% else %}
+                    <a class="nav-link" href="{{ url_for('login') }}">
+                        <i class="fas fa-sign-in-alt me-1"></i>Login
+                    </a>
+                    <a class="nav-link" href="{{ url_for('signup') }}">
+                        <i class="fas fa-user-plus me-1"></i>Sign Up
+                    </a>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
     </nav>
 
