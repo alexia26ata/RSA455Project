@@ -22,9 +22,9 @@
                     <td>{{ op.timestamp.strftime('%Y-%m-%d %I:%M %p') }}</td>
                     <td>
                         {% if op.operation_type == 'encrypt' %}
-                        <span class="badge bg-primary">Encryption</span>
+                        <span class="badge bg-info">Encryption</span>
                         {% elif op.operation_type == 'decrypt' %}
-                        <span class="badge bg-success">Decryption</span>
+                        <span class="badge bg-info">Decryption</span>
                         {% else %}
                         <span class="badge bg-secondary">Keys Generated</span>
                         {% endif %}
@@ -85,8 +85,14 @@
     border-radius: 4px;
 }
 
+.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
 .bg-secondary {
     background-color: #6c757d !important;
+    color: #fff !important;
 }
 
 table {
