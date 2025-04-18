@@ -77,7 +77,7 @@
                 <i class="fas fa-lock me-2"></i>
                 Secure Cipher Scribe
             </a>
-            {% if session.email %}
+            {% if session.get('user_id') %}
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="/history">History</a>
                 <a class="nav-link" href="/logout">Logout</a>
