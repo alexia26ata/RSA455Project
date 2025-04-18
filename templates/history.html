@@ -2,48 +2,61 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Operation History</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Operation History</h2>
+        <a href="{{ url_for('home') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Encryption
+        </a>
+    </div>
     
     {% if operations %}
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Timestamp</th>
+                        <th>Time</th>
                         <th>Operation</th>
                         <th>Input</th>
                         <th>Output</th>
-                        <th>Key Size</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for operation in operations %}
                         <tr>
-                            <td>{{ operation.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>{{ operation.timestamp.strftime('%Y-%m-%d %I:%M %p') }}</td>
                             <td>
                                 {% if operation.operation_type == 'encrypt' %}
-                                    <span class="badge bg-primary">Encryption</span>
+                                    <div class="operation-badge encrypt">
+                                        <i class="fas fa-lock me-1"></i>Encrypted
+                                    </div>
                                 {% elif operation.operation_type == 'decrypt' %}
-                                    <span class="badge bg-success">Decryption</span>
+                                    <div class="operation-badge decrypt">
+                                        <i class="fas fa-unlock me-1"></i>Decrypted
+                                    </div>
                                 {% else %}
-                                    <span class="badge bg-info">Key Generation</span>
+                                    <div class="operation-badge keys">
+                                        <i class="fas fa-key me-1"></i>Keys Generated
+                                    </div>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if operation.input_data %}
-                                    {{ operation.input_data[:50] }}{% if operation.input_data|length > 50 %}...{% endif %}
+                                    <div class="data-box">
+                                        {{ operation.input_data[:50] }}{% if operation.input_data|length > 50 %}...{% endif %}
+                                    </div>
                                 {% else %}
                                     -
                                 {% endif %}
                             </td>
                             <td>
                                 {% if operation.output_data %}
-                                    {{ operation.output_data[:50] }}{% if operation.output_data|length > 50 %}...{% endif %}
+                                    <div class="data-box">
+                                        {{ operation.output_data[:50] }}{% if operation.output_data|length > 50 %}...{% endif %}
+                                    </div>
                                 {% else %}
                                     -
                                 {% endif %}
                             </td>
-                            <td>{{ operation.key_size }} bits</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -51,8 +64,43 @@
         </div>
     {% else %}
         <div class="alert alert-info">
-            No operations recorded yet. Start by generating keys or encrypting/decrypting messages.
+            <i class="fas fa-info-circle me-2"></i>No operations recorded yet. Start by generating keys or encrypting/decrypting messages.
         </div>
     {% endif %}
 </div>
+
+<style>
+.operation-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.operation-badge.encrypt {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.operation-badge.decrypt {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.operation-badge.keys {
+    background-color: #fff3e0;
+    color: #f57c00;
+}
+
+.data-box {
+    background-color: #f8f9fa;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    word-break: break-all;
+}
+</style>
 {% endblock %} 

@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 import json
 import os
 from datetime import datetime
+import pytz
 from sympy import randprime
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Operation
@@ -20,6 +21,12 @@ db.init_app(app)
 # Create database tables
 with app.app_context():
     db.create_all()
+
+# Set Lebanon timezone
+lebanon_tz = pytz.timezone('Asia/Beirut')
+
+def get_lebanon_time():
+    return datetime.now(lebanon_tz)
 
 # Ensure the history directory exists
 if not os.path.exists('history'):
@@ -161,14 +168,15 @@ def generate_keys():
     public_key, private_key = generate_key_pair(bits)
     
     try:
-        # Log the operation in the database
+        # Log the operation in the database with Lebanon time
         operation = Operation(
             user_id=session['user_id'],
             operation_type='generate_keys',
             input_data='',
             output_data=json.dumps({'public_key': str(public_key), 'private_key': str(private_key)}),
             key_size=bits,
-            keys_used=json.dumps({'public_key': str(public_key), 'private_key': str(private_key)})
+            keys_used=json.dumps({'public_key': str(public_key), 'private_key': str(private_key)}),
+            timestamp=get_lebanon_time()
         )
         db.session.add(operation)
         db.session.commit()
@@ -191,14 +199,15 @@ def encrypt_message():
     cipher = encrypt(message, public_key)
     
     try:
-        # Log the operation in the database
+        # Log the operation in the database with Lebanon time
         operation = Operation(
             user_id=session['user_id'],
             operation_type='encrypt',
             input_data=message,
             output_data=str(cipher),
             key_size=len(str(public_key[1])),
-            keys_used=json.dumps({'public_key': str(public_key)})
+            keys_used=json.dumps({'public_key': str(public_key)}),
+            timestamp=get_lebanon_time()
         )
         db.session.add(operation)
         db.session.commit()
@@ -218,14 +227,15 @@ def decrypt_message():
     message = decrypt(cipher, private_key)
     
     try:
-        # Log the operation in the database
+        # Log the operation in the database with Lebanon time
         operation = Operation(
             user_id=session['user_id'],
             operation_type='decrypt',
             input_data=str(cipher),
             output_data=message,
             key_size=len(str(private_key[1])),
-            keys_used=json.dumps({'private_key': str(private_key)})
+            keys_used=json.dumps({'private_key': str(private_key)}),
+            timestamp=get_lebanon_time()
         )
         db.session.add(operation)
         db.session.commit()
