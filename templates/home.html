@@ -17,11 +17,23 @@
                     </div>
                     <div class="mb-3">
                         <label for="publicKey" class="form-label">Public Key</label>
-                        <textarea class="form-control" id="publicKey" rows="4" readonly></textarea>
+                        <div class="input-group">
+                            <textarea class="form-control" id="publicKey" rows="4" readonly></textarea>
+                            <div id="publicKeyButtons" style="display: none;">
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('publicKey')">Copy</button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="downloadText('publicKey', 'public_key.txt')">Download</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="privateKey" class="form-label">Private Key</label>
-                        <textarea class="form-control" id="privateKey" rows="4" readonly></textarea>
+                        <div class="input-group">
+                            <textarea class="form-control" id="privateKey" rows="4" readonly></textarea>
+                            <div id="privateKeyButtons" style="display: none;">
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('privateKey')">Copy</button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="downloadText('privateKey', 'private_key.txt')">Download</button>
+                            </div>
+                        </div>
                     </div>
                     <button class="btn w-100" onclick="generateKeys()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Generate Keys</button>
                 </div>
@@ -43,7 +55,13 @@
                     </div>
                     <div class="mb-3">
                         <label for="encryptedMessage" class="form-label">Encrypted Message</label>
-                        <textarea class="form-control" id="encryptedMessage" rows="4" readonly></textarea>
+                        <div class="input-group">
+                            <textarea class="form-control" id="encryptedMessage" rows="4" readonly></textarea>
+                            <div id="encryptedButtons" style="display: none;">
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('encryptedMessage')">Copy</button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="downloadText('encryptedMessage', 'ciphertext.txt')">Download</button>
+                            </div>
+                        </div>
                     </div>
                     <button class="btn btn-primary w-100 mb-2" onclick="pastePublicKey()">Paste Public Key</button>
                     <button class="btn w-100" onclick="encryptMessage()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Encrypt</button>
@@ -66,7 +84,13 @@
                     </div>
                     <div class="mb-3">
                         <label for="decryptedMessage" class="form-label">Decrypted Message</label>
-                        <textarea class="form-control" id="decryptedMessage" rows="4" readonly></textarea>
+                        <div class="input-group">
+                            <textarea class="form-control" id="decryptedMessage" rows="4" readonly></textarea>
+                            <div id="decryptedButtons" style="display: none;">
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('decryptedMessage')">Copy</button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="downloadText('decryptedMessage', 'message.txt')">Download</button>
+                            </div>
+                        </div>
                     </div>
                     <button class="btn btn-primary w-100 mb-2" onclick="pastePrivateKey()">Paste Private Key</button>
                     <button class="btn w-100" onclick="decryptMessage()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Decrypt</button>
@@ -78,11 +102,29 @@
 
 {% block scripts %}
 <script>
+function showButtons(elementId) {
+    document.getElementById(elementId + 'Buttons').style.display = 'block';
+}
+
 function copyToClipboard(elementId) {
     const element = document.getElementById(elementId);
     element.select();
     document.execCommand('copy');
     alert('Copied to clipboard!');
+}
+
+function downloadText(elementId, filename) {
+    const element = document.getElementById(elementId);
+    const text = element.value;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
 }
 
 function pastePublicKey() {
@@ -106,6 +148,8 @@ function generateKeys() {
     .then(data => {
         document.getElementById('publicKey').value = data.public_key;
         document.getElementById('privateKey').value = data.private_key;
+        showButtons('publicKey');
+        showButtons('privateKey');
     });
 }
 
@@ -123,6 +167,7 @@ function encryptMessage() {
     .then(response => response.json())
     .then(data => {
         document.getElementById('encryptedMessage').value = data.cipher;
+        showButtons('encrypted');
     });
 }
 
@@ -140,6 +185,11 @@ function decryptMessage() {
     .then(response => response.json())
     .then(data => {
         document.getElementById('decryptedMessage').value = data.message;
+        showButtons('decrypted');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('decryptedMessage').value = 'Error decrypting message. Please check your private key and ciphertext.';
     });
 }
 </script>
