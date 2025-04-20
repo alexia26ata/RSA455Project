@@ -19,7 +19,7 @@
             <tbody>
                 {% for op in operations %}
                 <tr>
-                    <td>{{ op.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ op.get_formatted_timestamp() }}</td>
                     <td>
                         {% if op.operation_type == 'encrypt' %}
                         <span class="badge bg-info">Encryption</span>

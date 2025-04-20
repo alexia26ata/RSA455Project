@@ -87,12 +87,34 @@ def generate_key_pair(bits=1024):
 def encrypt(message, public_key):
     e, n = public_key
     # Convert message to numbers and encrypt
-    return [pow(ord(c), e, n) for c in message]
+    try:
+        return [pow(ord(c), e, n) for c in message]
+    except Exception as e:
+        print(f"Encryption error: {str(e)}")
+        return None
 
 def decrypt(cipher, private_key):
     d, n = private_key
     # Decrypt numbers and convert back to text
-    return ''.join([chr(pow(c, d, n)) for c in cipher])
+    try:
+        # Convert string representation of list to actual list if needed
+        if isinstance(cipher, str):
+            cipher = eval(cipher)
+        # Decrypt each number and convert back to character
+        decrypted = []
+        for c in cipher:
+            try:
+                m = pow(c, d, n)
+                if 0 <= m <= 0x10FFFF:  # Valid Unicode range
+                    decrypted.append(chr(m))
+                else:
+                    raise ValueError(f"Invalid character code: {m}")
+            except Exception as e:
+                raise ValueError(f"Failed to decrypt character: {str(e)}")
+        return ''.join(decrypted)
+    except Exception as e:
+        print(f"Decryption error: {str(e)}")
+        return None
 
 def save_user(email, password):
     with open('users.json', 'r+') as f:
@@ -134,7 +156,7 @@ def login():
             session['user_id'] = user.id
             return redirect(url_for('home'))
         
-        flash('Invalid email or password', 'error')
+        flash('Invalid email or password. Please check your credentials and try again.', 'error')
     
     return render_template('login.html')
 
@@ -146,17 +168,22 @@ def signup():
         
         # Check if user already exists
         if User.query.filter_by(email=email).first():
-            flash('Email already registered', 'error')
-            return redirect(url_for('signup'))
+            flash('This email is already registered. Please use a different email or login.', 'error')
+            return render_template('signup.html')
         
         # Create new user
-        user = User(email=email)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
-        
-        flash('Account created successfully!', 'success')
-        return redirect(url_for('login'))
+        try:
+            user = User(email=email)
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
+            
+            flash('Account created successfully! Please login.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while creating your account. Please try again.', 'error')
+            return render_template('signup.html')
     
     return render_template('signup.html')
 
@@ -201,10 +228,12 @@ def encrypt_message():
         return jsonify({'error': 'Not logged in'}), 401
         
     message = request.form.get('message')
-    public_key = eval(request.form.get('public_key'))
-    cipher = encrypt(message, public_key)
-    
     try:
+        public_key = eval(request.form.get('public_key'))
+        cipher = encrypt(message, public_key)
+        if cipher is None:
+            return jsonify({'error': 'Encryption failed'}), 400
+        
         # Log the operation in the database with Lebanon time
         operation = Operation(
             user_id=session['user_id'],
@@ -217,39 +246,44 @@ def encrypt_message():
         )
         db.session.add(operation)
         db.session.commit()
+        
+        return jsonify({'cipher': str(cipher)})
     except Exception as e:
         db.session.rollback()
-        print(f"Error saving operation: {str(e)}")
-    
-    return jsonify({'cipher': str(cipher)})
+        print(f"Error in encryption: {str(e)}")
+        return jsonify({'error': 'Invalid public key or message'}), 400
 
 @app.route('/decrypt', methods=['POST'])
 def decrypt_message():
     if 'user_id' not in session:
         return jsonify({'error': 'Not logged in'}), 401
         
-    cipher = eval(request.form.get('cipher'))
-    private_key = eval(request.form.get('private_key'))
-    message = decrypt(cipher, private_key)
-    
     try:
+        cipher = request.form.get('cipher')
+        private_key = eval(request.form.get('private_key'))
+        decrypted = decrypt(cipher, private_key)
+        
+        if decrypted is None:
+            return jsonify({'error': 'Decryption failed. Please check your private key and ciphertext.'}), 400
+        
         # Log the operation in the database with Lebanon time
         operation = Operation(
             user_id=session['user_id'],
             operation_type='decrypt',
             input_data=str(cipher),
-            output_data=message,
+            output_data=decrypted,
             key_size=len(str(private_key[1])),
             keys_used=json.dumps({'private_key': str(private_key)}),
             timestamp=get_lebanon_time()
         )
         db.session.add(operation)
         db.session.commit()
+        
+        return jsonify({'message': decrypted})
     except Exception as e:
         db.session.rollback()
-        print(f"Error saving operation: {str(e)}")
-    
-    return jsonify({'message': message})
+        print(f"Error in decryption: {str(e)}")
+        return jsonify({'error': 'Invalid private key or ciphertext'}), 400
 
 @app.route('/history')
 def history():

@@ -217,6 +217,9 @@ function generatePrimes() {
 function calculateValues() {
     currentN = currentP * currentQ;
     currentPhi = (currentP - 1) * (currentQ - 1);
+    currentE = 17;
+    // Calculate d using extended Euclidean algorithm
+    currentD = modInverse(currentE, currentPhi);
     
     document.getElementById('calculations').innerHTML = `
         <div class="alert alert-success mt-2">
@@ -225,6 +228,36 @@ function calculateValues() {
             φ(n) = ${currentPhi}
         </div>
     `;
+}
+
+// Helper function for modular multiplicative inverse
+function modInverse(a, m) {
+    let m0 = m;
+    let x0 = 0;
+    let x1 = 1;
+    
+    if (m === 1) return 0;
+    
+    // Apply extended Euclidean Algorithm
+    while (a > 1) {
+        // q is quotient
+        let q = Math.floor(a / m);
+        let t = m;
+        
+        // m is remainder now, process same as Euclidean algorithm
+        m = a % m;
+        a = t;
+        t = x0;
+        x0 = x1 - q * x0;
+        x1 = t;
+    }
+    
+    // Make x1 positive
+    if (x1 < 0) {
+        x1 += m0;
+    }
+    
+    return x1;
 }
 
 function demonstrateEncryption() {
@@ -262,8 +295,16 @@ function demonstrateDecryption() {
     
     // Simple modular exponentiation (for demonstration only)
     let message = 1;
-    for (let i = 0; i < currentD; i++) {
-        message = (message * cipher) % currentN;
+    let base = cipher;
+    let exponent = currentD;
+    
+    // Use binary exponentiation for more accurate results
+    while (exponent > 0) {
+        if (exponent % 2 === 1) {
+            message = (message * base) % currentN;
+        }
+        base = (base * base) % currentN;
+        exponent = Math.floor(exponent / 2);
     }
     
     document.getElementById('decryptionResult').innerHTML = `

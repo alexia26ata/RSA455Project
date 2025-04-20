@@ -5,6 +5,10 @@ import pytz
 
 db = SQLAlchemy()
 
+def get_lebanon_time():
+    lebanon_tz = pytz.timezone('Asia/Beirut')
+    return datetime.now(lebanon_tz)
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -21,10 +25,6 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.email}>'
 
-def get_lebanon_time():
-    lebanon_tz = pytz.timezone('Asia/Beirut')
-    return datetime.now(lebanon_tz)
-
 class Operation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -33,4 +33,14 @@ class Operation(db.Model):
     output_data = db.Column(db.Text, nullable=False)
     key_size = db.Column(db.Integer, nullable=False)
     keys_used = db.Column(db.Text, nullable=False)  # JSON string of keys used
-    timestamp = db.Column(db.DateTime(timezone=True), default=get_lebanon_time) 
+    timestamp = db.Column(db.DateTime(timezone=True), default=get_lebanon_time)
+
+    def get_formatted_timestamp(self):
+        """Return the timestamp in Lebanon timezone"""
+        if self.timestamp.tzinfo is None:
+            # If timestamp is naive, assume it's in UTC and convert to Lebanon time
+            utc_dt = pytz.utc.localize(self.timestamp)
+            lebanon_tz = pytz.timezone('Asia/Beirut')
+            lebanon_dt = utc_dt.astimezone(lebanon_tz)
+            return lebanon_dt.strftime('%Y-%m-%d %H:%M')
+        return self.timestamp.strftime('%Y-%m-%d %H:%M') 
