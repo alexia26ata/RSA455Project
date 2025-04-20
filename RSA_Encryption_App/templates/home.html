@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <!-- Key Generation Card -->
+    <div class="col-md-4">
+        <div class="card p-4">
+            <h3 class="text-primary mb-4">Key Generation</h3>
+            
+            <div class="mb-3">
+                <label for="keySize" class="form-label">Key Size</label>
+                <select class="form-select" id="keySize">
+                    <option value="1024">1024 bits</option>
+                    <option value="2048">2048 bits</option>
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label for="publicKey" class="form-label">Public Key</label>
+                <textarea class="form-control" id="publicKey" rows="2" readonly></textarea>
+            </div>
+            
+            <div class="mb-4">
+                <label for="privateKey" class="form-label">Private Key</label>
+                <textarea class="form-control" id="privateKey" rows="2" readonly></textarea>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-primary" onclick="copyToClipboard('publicKey')">Copy Public Key</button>
+                <button class="btn btn-primary" onclick="copyToClipboard('privateKey')">Copy Private Key</button>
+                <button class="btn btn-accent" onclick="generateKeys()">Generate Keys</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Encrypt Card -->
+    <div class="col-md-4">
+        <div class="card p-4">
+            <h3 class="text-primary mb-4">Encrypt Message</h3>
+            
+            <div class="mb-3">
+                <label for="message" class="form-label">Message</label>
+                <textarea class="form-control" id="message" rows="2" placeholder="Enter message to encrypt"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="encryptPublicKey" class="form-label">Public Key</label>
+                <textarea class="form-control" id="encryptPublicKey" rows="2" placeholder="Enter public key (e,n)"></textarea>
+            </div>
+            
+            <div class="mb-4">
+                <label for="encryptedMessage" class="form-label">Encrypted Message</label>
+                <textarea class="form-control" id="encryptedMessage" rows="2" readonly></textarea>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-primary" onclick="pastePublicKey()">Paste Public Key</button>
+                <button class="btn btn-accent" onclick="encryptMessage()">Encrypt</button>
+                <button class="btn btn-primary" onclick="copyToClipboard('encryptedMessage')">Copy Cipher</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Decrypt Card -->
+    <div class="col-md-4">
+        <div class="card p-4">
+            <h3 class="text-primary mb-4">Decrypt Message</h3>
+            
+            <div class="mb-3">
+                <label for="cipher" class="form-label">Ciphertext</label>
+                <textarea class="form-control" id="cipher" rows="2" placeholder="Enter ciphertext to decrypt"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="decryptPrivateKey" class="form-label">Private Key</label>
+                <textarea class="form-control" id="decryptPrivateKey" rows="2" placeholder="Enter private key (d,n)"></textarea>
+            </div>
+            
+            <div class="mb-4">
+                <label for="decryptedMessage" class="form-label">Decrypted Message</label>
+                <textarea class="form-control" id="decryptedMessage" rows="2" readonly></textarea>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-primary" onclick="pastePrivateKey()">Paste Private Key</button>
+                <button class="btn btn-accent" onclick="decryptMessage()">Decrypt</button>
+                <button class="btn btn-primary" onclick="copyToClipboard('decryptedMessage')">Copy Message</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    element.select();
+    document.execCommand('copy');
+    alert('Copied to clipboard!');
+}
+
+function pastePublicKey() {
+    document.getElementById('encryptPublicKey').value = document.getElementById('publicKey').value;
+}
+
+function pastePrivateKey() {
+    document.getElementById('decryptPrivateKey').value = document.getElementById('privateKey').value;
+}
+
+function generateKeys() {
+    const bits = document.getElementById('keySize').value;
+    fetch('/generate_keys', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `bits=${bits}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('publicKey').value = data.public_key;
+        document.getElementById('privateKey').value = data.private_key;
+    });
+}
+
+function encryptMessage() {
+    const message = document.getElementById('message').value;
+    const publicKey = document.getElementById('encryptPublicKey').value;
+    
+    fetch('/encrypt', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `message=${encodeURIComponent(message)}&public_key=${encodeURIComponent(publicKey)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('encryptedMessage').value = data.cipher;
+    });
+}
+
+function decryptMessage() {
+    const cipher = document.getElementById('cipher').value;
+    const privateKey = document.getElementById('decryptPrivateKey').value;
+    
+    fetch('/decrypt', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `cipher=${encodeURIComponent(cipher)}&private_key=${encodeURIComponent(privateKey)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('decryptedMessage').value = data.message;
+    });
+}
+</script>
+{% endblock %} 
