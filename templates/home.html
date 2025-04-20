@@ -19,14 +19,18 @@
                     <div class="mt-3">
                         <h4>Public Key:</h4>
                         <div id="public-key" class="key-box"></div>
-                        <button class="btn btn-secondary" onclick="copyToClipboard('public-key')">Copy Public Key</button>
-                        <button class="btn btn-secondary" onclick="downloadKey('public-key', 'public_key.txt')">Download Public Key</button>
+                        <div id="public-key-buttons" style="display: none;">
+                            <button class="btn btn-secondary" onclick="copyToClipboard('public-key')">Copy Public Key</button>
+                            <button class="btn btn-secondary" onclick="downloadKey('public-key', 'public_key.txt')">Download Public Key</button>
+                        </div>
                     </div>
                     <div class="mt-3">
                         <h4>Private Key:</h4>
                         <div id="private-key" class="key-box"></div>
-                        <button class="btn btn-secondary" onclick="copyToClipboard('private-key')">Copy Private Key</button>
-                        <button class="btn btn-secondary" onclick="downloadKey('private-key', 'private_key.txt')">Download Private Key</button>
+                        <div id="private-key-buttons" style="display: none;">
+                            <button class="btn btn-secondary" onclick="copyToClipboard('private-key')">Copy Private Key</button>
+                            <button class="btn btn-secondary" onclick="downloadKey('private-key', 'private_key.txt')">Download Private Key</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -50,8 +54,10 @@
                     <div class="mt-3">
                         <h4>Encrypted Message:</h4>
                         <div id="encrypted-message" class="key-box"></div>
-                        <button class="btn btn-secondary" onclick="copyToClipboard('encrypted-message')">Copy Encrypted Message</button>
-                        <button class="btn btn-secondary" onclick="downloadKey('encrypted-message', 'encrypted_message.txt')">Download Encrypted Message</button>
+                        <div id="encrypted-message-buttons" style="display: none;">
+                            <button class="btn btn-secondary" onclick="copyToClipboard('encrypted-message')">Copy Encrypted Message</button>
+                            <button class="btn btn-secondary" onclick="downloadKey('encrypted-message', 'encrypted_message.txt')">Download Encrypted Message</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -75,8 +81,10 @@
                     <div class="mt-3">
                         <h4>Decrypted Message:</h4>
                         <div id="decrypted-message" class="key-box"></div>
-                        <button class="btn btn-secondary" onclick="copyToClipboard('decrypted-message')">Copy Decrypted Message</button>
-                        <button class="btn btn-secondary" onclick="downloadKey('decrypted-message', 'decrypted_message.txt')">Download Decrypted Message</button>
+                        <div id="decrypted-message-buttons" style="display: none;">
+                            <button class="btn btn-secondary" onclick="copyToClipboard('decrypted-message')">Copy Decrypted Message</button>
+                            <button class="btn btn-secondary" onclick="downloadKey('decrypted-message', 'decrypted_message.txt')">Download Decrypted Message</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -87,14 +95,14 @@
 {% block scripts %}
 <script>
 function showButtons(elementId) {
-    document.getElementById(elementId + 'Buttons').style.display = 'block';
+    document.getElementById(elementId + '-buttons').style.display = 'block';
 }
 
 function copyToClipboard(elementId) {
-    const element = document.getElementById(elementId);
-    element.select();
-    document.execCommand('copy');
-    alert('Copied to clipboard!');
+    const text = document.getElementById(elementId).textContent;
+    navigator.clipboard.writeText(text)
+        .then(() => alert('Copied to clipboard!'))
+        .catch(err => console.error('Error copying text: ', err));
 }
 
 function downloadKey(elementId, filename) {
@@ -133,6 +141,8 @@ function generateKeys() {
     .then(data => {
         document.getElementById('public-key').textContent = data.public_key;
         document.getElementById('private-key').textContent = data.private_key;
+        showButtons('public-key');
+        showButtons('private-key');
     })
     .catch(error => {
         console.error('Error:', error);
@@ -157,6 +167,7 @@ function encryptMessage() {
             alert(data.error);
         } else {
             document.getElementById('encrypted-message').textContent = data.cipher;
+            showButtons('encrypted-message');
         }
     })
     .catch(error => {
@@ -182,6 +193,7 @@ function decryptMessage() {
             alert(data.error);
         } else {
             document.getElementById('decrypted-message').textContent = data.message;
+            showButtons('decrypted-message');
         }
     })
     .catch(error => {
