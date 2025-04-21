@@ -1,0 +1,174 @@
+RSA Encryption Application Project Report
+=====================================
+
+1. Project Overview
+------------------
+The RSA Encryption Application is a web-based tool that allows users to:
+- Generate RSA key pairs (public and private keys)
+- Encrypt messages using RSA public keys
+- Decrypt messages using RSA private keys
+- View operation history with timestamps
+- Download and copy keys and messages
+
+2. Technical Stack
+-----------------
+Frontend:
+- HTML/CSS
+- Bootstrap for styling
+- JavaScript for client-side interactions
+
+Backend:
+- Python Flask framework
+- SQLAlchemy for database management
+- SQLite database
+- Flask-Login for user authentication
+- pytz for timezone handling (Lebanon/Beirut)
+
+3. Key Features
+--------------
+a) User Authentication:
+   - User registration
+   - User login/logout
+   - Session management
+
+b) Key Generation:
+   - Support for 1024 and 2048-bit keys
+   - Secure key generation
+   - Copy/download options for generated keys
+
+c) Encryption/Decryption:
+   - Message encryption using public key
+   - Message decryption using private key
+   - Copy/download options for encrypted/decrypted messages
+
+d) History Tracking:
+   - Records all operations (encryption, decryption, key generation)
+   - Timestamps in Lebanon timezone
+   - User-specific history
+
+4. Database Structure
+--------------------
+Users Table:
+- user_id (Primary Key)
+- email
+- password (hashed)
+
+Operations Table:
+- id (Primary Key)
+- user_id (Foreign Key)
+- operation_type
+- input_data
+- output_data
+- timestamp
+- keys_used
+
+5. Implementation Challenges & Solutions
+--------------------------------------
+a) Session Management:
+   Challenge: Initially used email for session tracking
+   Solution: Switched to user_id for more secure session management
+
+b) Button Visibility:
+   Challenge: Copy/download buttons always visible
+   Solution: Implemented dynamic show/hide based on content availability
+
+c) Timezone Handling:
+   Challenge: Timestamps were in UTC
+   Solution: Implemented Lebanon timezone using pytz
+
+d) Key Display:
+   Challenge: Keys were truncated in history
+   Solution: Modified display to show full keys with proper formatting
+
+6. Security Features
+-------------------
+- Password hashing for user accounts
+- Session-based authentication
+- Input validation for RSA operations
+- Secure key generation
+- Protection against SQL injection (via SQLAlchemy)
+
+7. User Interface Features
+------------------------
+- Responsive design using Bootstrap
+- Clear separation of encryption/decryption sections
+- Intuitive button placement
+- Dynamic button visibility
+- Error feedback through alerts
+- Easy key copying and downloading
+- Navigation between sections
+
+8. Current Limitations
+---------------------
+- Maximum key size of 2048 bits
+- Text-only message encryption
+- No file encryption support
+- Single database for all operations
+- Basic error handling
+
+9. Future Improvement Possibilities
+--------------------------------
+- Add support for larger key sizes
+- Implement file encryption
+- Add message/key deletion in history
+- Add export functionality for history
+- Implement advanced error handling
+- Add user profile management
+- Add password recovery system
+- Implement rate limiting
+- Add support for different character encodings
+
+10. Testing & Validation
+-----------------------
+Manual testing performed for:
+- Key generation
+- Message encryption/decryption
+- History recording
+- User authentication
+- Button functionality
+- Copy/download features
+- Timezone accuracy
+- Error handling
+
+11. Deployment
+-------------
+- Application deployed on Render
+- Environment variables configured
+- Database properly initialized
+- Requirements file maintained
+- Static files properly served
+
+12. File Structure
+-----------------
+/455RSA/
+├── app.py              # Main application file
+├── models.py           # Database models
+├── requirements.txt    # Project dependencies
+├── templates/
+│   ├── base.html      # Base template
+│   ├── home.html      # Main application interface
+│   ├── history.html   # History view
+│   ├── login.html     # Login page
+│   └── register.html  # Registration page
+└── static/
+    └── css/
+        └── style.css  # Custom styles
+
+13. Dependencies
+--------------
+- Flask
+- Flask-SQLAlchemy
+- Flask-Login
+- pytz
+- Werkzeug
+- cryptography
+- SQLite3
+
+14. Known Issues
+--------------
+- Import resolution for some packages may require manual installation
+- Session timeout not implemented
+- No automatic database backup system
+- Limited input validation for edge cases
+
+This report provides a comprehensive overview of the RSA Encryption Application, its features, challenges faced during development, and potential areas for improvement. The application successfully implements core RSA encryption functionality while maintaining user security and providing a user-friendly interface. 

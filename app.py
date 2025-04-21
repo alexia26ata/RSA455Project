@@ -163,8 +163,24 @@ def login():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        # Validate email format
+        if not email or '@' not in email:
+            flash('Please enter a valid email address.', 'error')
+            return render_template('signup.html')
+        
+        # Validate password length
+        if not password or len(password) < 6:
+            flash('Password must be at least 6 characters long.', 'error')
+            return render_template('signup.html')
+        
+        # Validate password match
+        if password != confirm_password:
+            flash('Passwords do not match.', 'error')
+            return render_template('signup.html')
         
         # Check if user already exists
         if User.query.filter_by(email=email).first():
