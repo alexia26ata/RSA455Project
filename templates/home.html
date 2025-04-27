@@ -2,6 +2,10 @@
 
 {% block content %}
 <div class="container mt-5">
+    <header>
+        <h1 class="text-center text-primary mb-5"> RSA Encryption/Decryption Tool</h1>
+    </header>
+    </div>
     <div class="row">
         <!-- Key Generation Card -->
         <div class="col-md-4">
@@ -14,6 +18,12 @@
                             <option value="1024">1024 bits</option>
                             <option value="2048">2048 bits</option>
                         </select>
+                    </div>
+                    <div class="mb-3 text-center">
+                        <!-- Add the spinner here -->
+                        <div id="loading-spinner" class="spinner-border text-primary" role="status" style="display: none;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                     </div>
                     <button class="btn w-100" onclick="generateKeys()" style="background-color: #2196F3; border-color: #2196F3; color: white;">Generate Keys</button>
                     <div class="mt-3">
@@ -130,6 +140,10 @@ function pastePrivateKey() {
 
 function generateKeys() {
     const bits = document.getElementById('bits').value;
+    const spinner = document.getElementById('loading-spinner');
+
+    spinner.style.display = 'block';
+
     fetch('/generate_keys', {
         method: 'POST',
         headers: {
@@ -147,6 +161,10 @@ function generateKeys() {
     .catch(error => {
         console.error('Error:', error);
         alert('Error generating keys. Please try again.');
+    })
+    .finally(() => {
+        // Hide the spinner
+        spinner.style.display = 'none';
     });
 }
 

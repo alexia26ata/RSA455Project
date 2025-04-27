@@ -60,39 +60,44 @@ function checkPasswords() {
     const passwordError = document.getElementById('password-error');
     const passwordMatchError = document.getElementById('password-match-error');
     const submitBtn = document.getElementById('submit-btn');
-    
-    // Check password length
-    if (password.length < 6) {
+
+    // Regular expression to check password strength
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    // Check password strength
+    if (!passwordRegex.test(password)) {
         passwordError.style.display = 'block';
+        passwordError.textContent = 'Password must be at least 8 characters long, include uppercase, lowercase, a number, and a special character.';
     } else {
         passwordError.style.display = 'none';
     }
-    
+
     // Check if passwords match
     if (confirmPassword && password !== confirmPassword) {
         passwordMatchError.style.display = 'block';
     } else {
         passwordMatchError.style.display = 'none';
     }
-    
+
     // Enable/disable submit button
-    submitBtn.disabled = password.length < 6 || (confirmPassword && password !== confirmPassword);
+    submitBtn.disabled = !passwordRegex.test(password) || (confirmPassword && password !== confirmPassword);
 }
 
 function validateForm() {
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirm_password').value;
-    
-    if (password.length < 6) {
-        alert('Password must be at least 6 characters long');
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+        alert('Password must be at least 8 characters long, include uppercase, lowercase, a number, and a special character.');
         return false;
     }
-    
+
     if (password !== confirmPassword) {
         alert('Passwords do not match');
         return false;
     }
-    
+
     return true;
 }
 
